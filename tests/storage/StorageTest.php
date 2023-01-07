@@ -170,7 +170,6 @@ class StorageTest extends TestCase
      * Tests isBootstrapped().
      *
      * @param callable $storageFactory Returns a storage.
-     * @test
      * @dataProvider provideStorageFactories
      */
     public function testIsBootstrapped(callable $storageFactory)

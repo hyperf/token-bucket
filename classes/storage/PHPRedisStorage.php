@@ -22,22 +22,22 @@ use malkusch\lock\mutex\Mutex;
  */
 final class PHPRedisStorage implements Storage, GlobalScope
 {
-    
+
     /**
      * @var Mutex The mutex.
      */
     private $mutex;
-    
+
     /**
      * @var Redis The redis API.
      */
     private $redis;
-    
+
     /**
      * @var string The key.
      */
     private $key;
-    
+
     /**
      * Sets the connected Redis API.
      *
@@ -53,21 +53,21 @@ final class PHPRedisStorage implements Storage, GlobalScope
         $this->redis = $redis;
         $this->mutex = new PHPRedisMutex([$redis], $name);
     }
-    
+
     public function bootstrap($microtime)
     {
         $this->setMicrotime($microtime);
     }
-    
+
     public function isBootstrapped()
     {
         try {
-            return $this->redis->exists($this->key);
+            return (bool) $this->redis->exists($this->key);
         } catch (RedisException $e) {
             throw new StorageException("Failed to check for key existence", 0, $e);
         }
     }
-    
+
     public function remove()
     {
         try {
@@ -78,7 +78,7 @@ final class PHPRedisStorage implements Storage, GlobalScope
             throw new StorageException("Failed to delete key", 0, $e);
         }
     }
-    
+
     /**
      * @SuppressWarnings(PHPMD)
      */
@@ -86,7 +86,7 @@ final class PHPRedisStorage implements Storage, GlobalScope
     {
         try {
             $data = DoublePacker::pack($microtime);
-            
+
             if (!$this->redis->set($this->key, $data)) {
                 throw new StorageException("Failed to store microtime");
             }
