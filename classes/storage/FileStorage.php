@@ -5,6 +5,7 @@ namespace bandwidthThrottle\tokenBucket\storage;
 use malkusch\lock\mutex\FlockMutex;
 use bandwidthThrottle\tokenBucket\storage\scope\GlobalScope;
 use bandwidthThrottle\tokenBucket\util\DoublePacker;
+use malkusch\lock\mutex\Mutex;
 
 /**
  * File based storage which can be shared among processes.
@@ -51,7 +52,7 @@ final class FileStorage implements Storage, GlobalScope
     private function open()
     {
         $this->fileHandle = fopen($this->path, "c+");
-        if (!is_resource($this->fileHandle)) {
+        if (! is_resource($this->fileHandle)) {
             throw new StorageException("Could not open '$this->path'.");
         }
         $this->mutex = new FlockMutex($this->fileHandle);
@@ -82,10 +83,10 @@ final class FileStorage implements Storage, GlobalScope
     public function remove()
     {
         // Truncate to notify isBootstrapped() about the new state.
-        if (!ftruncate($this->fileHandle, 0)) {
+        if (! ftruncate($this->fileHandle, 0)) {
             throw new StorageException("Could not truncate $this->path");
         }
-        if (!unlink($this->path)) {
+        if (! unlink($this->path)) {
             throw new StorageException("Could not delete $this->path");
         }
     }
