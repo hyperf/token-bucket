@@ -1,4 +1,4 @@
-name: PHPUnit for Hyperf
+name: PHPUnit
 
 on: [ push, pull_request ]
 
