@@ -2,6 +2,7 @@
 
 namespace bandwidthThrottle\tokenBucket\util;
 
+use bandwidthThrottle\tokenBucket\storage\StorageException;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -10,7 +11,7 @@ use PHPUnit\Framework\TestCase;
  * @author Markus Malkusch <markus@malkusch.de>
  * @link bitcoin:1335STSwu9hST4vcMRppEPgENMHD2r1REK Donations
  * @license WTFPL
- * @see DoublePacker
+ * @see  DoublePacker
  */
 class DoublePackerTest extends TestCase
 {
@@ -19,7 +20,7 @@ class DoublePackerTest extends TestCase
      * Tests pack().
      *
      * @param string $expected The expected string.
-     * @param double $input    The input double.
+     * @param double $input The input double.
      *
      * @test
      * @dataProvider provideTestPack
@@ -37,9 +38,9 @@ class DoublePackerTest extends TestCase
     public function provideTestPack()
     {
         return [
-            [pack("d", 0)  , 0],
+            [pack("d", 0), 0],
             [pack("d", 0.1), 0.1],
-            [pack("d", 1)  , 1],
+            [pack("d", 1), 1],
         ];
     }
 
@@ -48,12 +49,12 @@ class DoublePackerTest extends TestCase
      *
      * @param string $input The input string.
      *
-     * @test
      * @dataProvider provideTestUnpackFails
-     * @expectedException \bandwidthThrottle\tokenBucket\storage\StorageException
      */
     public function testUnpackFails($input)
     {
+        $this->expectException(StorageException::class);
+
         DoublePacker::unpack($input);
     }
 
@@ -75,7 +76,7 @@ class DoublePackerTest extends TestCase
      * Tests unpack().
      *
      * @param double $expected The expected double.
-     * @param string $input    The input string.
+     * @param string $input The input string.
      *
      * @test
      * @dataProvider provideTestUnpack
@@ -93,9 +94,9 @@ class DoublePackerTest extends TestCase
     public function provideTestUnpack()
     {
         return [
-            [0,   pack("d", 0)],
+            [0, pack("d", 0)],
             [0.1, pack("d", 0.1)],
-            [1,   pack("d", 1)],
+            [1, pack("d", 1)],
             [1.1, pack("d", 1.1)],
         ];
     }
