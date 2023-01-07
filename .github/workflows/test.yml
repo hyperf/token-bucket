@@ -16,7 +16,7 @@ jobs:
       PHP_VERSION: ${{ matrix.php-version }}
       MYSQL_DSN: "mysql:host=127.0.0.1;dbname=test"
       MYSQL_USER: "root"
-      PGSQL_DSN: "pgsql:host=localhost;dbname=test;"
+      PGSQL_DSN: "pgsql:host=127.0.0.1;dbname=test;"
       PGSQL_USER: "postgres"
       MEMCACHE_HOST: "127.0.0.1"
       REDIS_URI: "redis://localhost"
@@ -36,6 +36,7 @@ jobs:
           docker run -e TZ=Asia/Shanghai -e MYSQL_ALLOW_EMPTY_PASSWORD=true -e MYSQL_ROOT_HOST=% -e MYSQL_DATABASE=test -v $PWD/.github/init.sql:/docker-entrypoint-initdb.d/init.sql -d -p 3306:3306 --name mysql mysql/mysql-server:5.7
           docker run -p 6379:6379 -d --name redis redis:latest
           docker run --name memcached -p 11211:11211 -d memcached:latest
+          docker run --name postgres -p 5432:5432 -e POSTGRES_PASSWORD=postgres -d postgres:14
       - name: Show Environment
         run: |
           php -v
