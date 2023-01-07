@@ -26,7 +26,7 @@ class PDOStorageTest extends TestCase
      */
     private $storages = [];
 
-    protected function tearDown()
+    protected function tearDown(): void
     {
         foreach ($this->storages as $storage) {
             $storage->remove();

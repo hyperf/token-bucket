@@ -29,7 +29,7 @@ class PredisStorageTest extends TestCase
      */
     private $storage;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
 

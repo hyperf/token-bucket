@@ -26,7 +26,7 @@ class MemcachedStorageTest extends TestCase
      */
     private $storage;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -41,7 +41,7 @@ class MemcachedStorageTest extends TestCase
         $this->storage->bootstrap(123);
     }
 
-    protected function tearDown()
+    protected function tearDown(): void
     {
         parent::tearDown();
 

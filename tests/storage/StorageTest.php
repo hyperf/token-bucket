@@ -23,7 +23,7 @@ use PHPUnit\Framework\TestCase;
  * @author Markus Malkusch <markus@malkusch.de>
  * @link bitcoin:1335STSwu9hST4vcMRppEPgENMHD2r1REK Donations
  * @license WTFPL
- * @see Storage
+ * @see  Storage
  */
 class StorageTest extends TestCase
 {
@@ -33,9 +33,9 @@ class StorageTest extends TestCase
      */
     private $storage;
 
-    protected function tearDown()
+    protected function tearDown(): void
     {
-        if (!is_null($this->storage) && $this->storage->isBootstrapped()) {
+        if (! is_null($this->storage) && $this->storage->isBootstrapped()) {
             $this->storage->remove();
         }
     }
@@ -48,60 +48,80 @@ class StorageTest extends TestCase
     public function provideStorageFactories()
     {
         $cases = [
-            "SingleProcessStorage" => [function () {
-                return new SingleProcessStorage();
-            }],
-            "SessionStorage" => [function () {
-                return new SessionStorage("test");
-            }],
-            "FileStorage" => [function () {
-                vfsStream::setup('fileStorage');
-                return new FileStorage(vfsStream::url("fileStorage/data"));
-            }],
-            "sqlite" => [function () {
-                $pdo = new \PDO("sqlite::memory:");
-                $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
-                return new PDOStorage("test", $pdo);
-            }],
-            "IPCStorage" => [function () {
-                return new IPCStorage(ftok(__FILE__, "a"));
-            }],
+            "SingleProcessStorage" => [
+                function () {
+                    return new SingleProcessStorage();
+                }
+            ],
+            "SessionStorage" => [
+                function () {
+                    return new SessionStorage("test");
+                }
+            ],
+            "FileStorage" => [
+                function () {
+                    vfsStream::setup('fileStorage');
+                    return new FileStorage(vfsStream::url("fileStorage/data"));
+                }
+            ],
+            "sqlite" => [
+                function () {
+                    $pdo = new \PDO("sqlite::memory:");
+                    $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
+                    return new PDOStorage("test", $pdo);
+                }
+            ],
+            "IPCStorage" => [
+                function () {
+                    return new IPCStorage(ftok(__FILE__, "a"));
+                }
+            ],
         ];
 
         if (getenv("MYSQL_DSN")) {
-            $cases["MYSQL"] = [function () {
-                $pdo = new \PDO(getenv("MYSQL_DSN"), getenv("MYSQL_USER"));
-                $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
-                $pdo->setAttribute(\PDO::ATTR_AUTOCOMMIT, false);
-                return new PDOStorage("test", $pdo);
-            }];
+            $cases["MYSQL"] = [
+                function () {
+                    $pdo = new \PDO(getenv("MYSQL_DSN"), getenv("MYSQL_USER"));
+                    $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
+                    $pdo->setAttribute(\PDO::ATTR_AUTOCOMMIT, false);
+                    return new PDOStorage("test", $pdo);
+                }
+            ];
         }
         if (getenv("PGSQL_DSN")) {
-            $cases["PGSQL"] = [function () {
-                $pdo = new \PDO(getenv("PGSQL_DSN"), getenv("PGSQL_USER"));
-                $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
-                return new PDOStorage("test", $pdo);
-            }];
+            $cases["PGSQL"] = [
+                function () {
+                    $pdo = new \PDO(getenv("PGSQL_DSN"), getenv("PGSQL_USER"));
+                    $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
+                    return new PDOStorage("test", $pdo);
+                }
+            ];
         }
         if (getenv("MEMCACHE_HOST")) {
-            $cases["MemcachedStorage"] = [function () {
-                $memcached = new \Memcached();
-                $memcached->addServer(getenv("MEMCACHE_HOST"), 11211);
-                return new MemcachedStorage("test", $memcached);
-            }];
+            $cases["MemcachedStorage"] = [
+                function () {
+                    $memcached = new \Memcached();
+                    $memcached->addServer(getenv("MEMCACHE_HOST"), 11211);
+                    return new MemcachedStorage("test", $memcached);
+                }
+            ];
         }
         if (getenv("REDIS_URI")) {
-            $cases["PHPRedisStorage"] = [function () {
-                $uri   = parse_url(getenv("REDIS_URI"));
-                $redis = new Redis();
-                $redis->connect($uri["host"]);
-                return new PHPRedisStorage("test", $redis);
-            }];
+            $cases["PHPRedisStorage"] = [
+                function () {
+                    $uri = parse_url(getenv("REDIS_URI"));
+                    $redis = new Redis();
+                    $redis->connect($uri["host"]);
+                    return new PHPRedisStorage("test", $redis);
+                }
+            ];
 
-            $cases["PredisStorage"] = [function () {
-                $redis = new Client(getenv("REDIS_URI"));
-                return new PredisStorage("test", $redis);
-            }];
+            $cases["PredisStorage"] = [
+                function () {
+                    $redis = new Client(getenv("REDIS_URI"));
+                    return new PredisStorage("test", $redis);
+                }
+            ];
         }
         return $cases;
     }
