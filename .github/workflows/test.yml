@@ -14,7 +14,7 @@ jobs:
     env:
       SW_VERSION: ${{ matrix.swoole-version }}
       PHP_VERSION: ${{ matrix.php-version }}
-      MYSQL_DSN: "mysql:host=localhost;dbname=test"
+      MYSQL_DSN: "mysql:host=127.0.0.1;dbname=test"
       MYSQL_USER: "root"
       PGSQL_DSN: "pgsql:host=localhost;dbname=test;"
       PGSQL_USER: "postgres"
@@ -33,7 +33,7 @@ jobs:
           extensions: pdo, pdo_mysql, redis, memcached
       - name: Setup MySQL ...
         run: |
-          docker run -e TZ=Asia/Shanghai -e MYSQL_ALLOW_EMPTY_PASSWORD=true -e MYSQL_ROOT_HOST=% -e MYSQL_DATABASE=hyperf -v $PWD/.github/init.sql:/docker-entrypoint-initdb.d/init.sql -d -p 3306:3306 --name mysql mysql/mysql-server:5.7
+          docker run -e TZ=Asia/Shanghai -e MYSQL_ALLOW_EMPTY_PASSWORD=true -e MYSQL_ROOT_HOST=% -e MYSQL_DATABASE=test -v $PWD/.github/init.sql:/docker-entrypoint-initdb.d/init.sql -d -p 3306:3306 --name mysql mysql/mysql-server:5.7
           docker run -p 6379:6379 -d --name redis redis:latest
           docker run --name memcached -p 11211:11211 -d memcached:latest
       - name: Show Environment
