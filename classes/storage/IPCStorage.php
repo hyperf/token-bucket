@@ -106,6 +106,10 @@ final class IPCStorage implements Storage, GlobalScope
     public function setMicrotime($microtime)
     {
         $data = DoublePacker::pack($microtime);
+        if (! $this->memory) {
+            throw new StorageException("Could not store in shared memory.");
+        }
+
         if (! shm_put_var($this->memory, 0, $data)) {
             throw new StorageException("Could not store in shared memory.");
         }

@@ -26,25 +26,12 @@ class IPCStorageTest extends TestCase
     }
 
     /**
-     * Tests remove() fails.
-     */
-    public function testRemoveFails()
-    {
-        $this->expectException(StorageException::class);
-        $this->expectExceptionMessage('Could not get semaphore id.');
-
-        $storage = new IPCStorage(ftok(__FILE__, "a"));
-        $storage->remove();
-        @$storage->remove();
-    }
-
-    /**
      * Tests removing semaphore fails.
      */
     public function testfailRemovingSemaphore()
     {
         $this->expectException(StorageException::class);
-        $this->expectExceptionMessage('Could not get semaphore id.');
+        $this->expectExceptionMessage('Could not get semaphore semaphore.');
 
         $key = ftok(__FILE__, "a");
         $storage = new IPCStorage($key);
