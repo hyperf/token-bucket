@@ -2,6 +2,7 @@
 
 namespace bandwidthThrottle\tokenBucket\storage;
 
+use malkusch\lock\mutex\Mutex;
 use malkusch\lock\mutex\SemaphoreMutex;
 use bandwidthThrottle\tokenBucket\storage\scope\GlobalScope;
 use bandwidthThrottle\tokenBucket\util\DoublePacker;
@@ -22,12 +23,12 @@ final class IPCStorage implements Storage, GlobalScope
 {
 
     /**
-     * @var Mutex The mutex.
+     * The mutex.
      */
-    private $mutex;
+    private ?Mutex $mutex = null;
 
     /**
-     * @var int $key The System V IPC key.
+     * The System V IPC key.
      */
     private int $key;
 
