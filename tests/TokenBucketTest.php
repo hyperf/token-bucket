@@ -15,7 +15,7 @@ use PHPUnit\Framework\TestCase;
  * @author Markus Malkusch <markus@malkusch.de>
  * @link bitcoin:1335STSwu9hST4vcMRppEPgENMHD2r1REK Donations
  * @license WTFPL
- * @see TokenBucket
+ * @see  TokenBucket
  */
 class TokenBucketTest extends TestCase
 {
@@ -29,8 +29,8 @@ class TokenBucketTest extends TestCase
     {
         $builder = new SleepEnvironmentBuilder();
         $builder->addNamespace(__NAMESPACE__)
-                ->addNamespace("bandwidthThrottle\\tokenBucket\\util")
-                ->setTimestamp(1417011228);
+            ->addNamespace("bandwidthThrottle\\tokenBucket\\util")
+            ->setTimestamp(1417011228);
 
         $this->sleepEnvironent = $builder->build();
         $this->sleepEnvironent->enable();
@@ -49,18 +49,18 @@ class TokenBucketTest extends TestCase
     public function testBootstrapOnce()
     {
         $storage = $this->getMockBuilder(Storage::class)
-                ->getMock();
+            ->getMock();
         $storage->expects($this->any())
-                ->method("getMutex")
-                ->willReturn(new NoMutex());
+            ->method("getMutex")
+            ->willReturn(new NoMutex());
         $storage->expects($this->any())
-                ->method("isBootstrapped")
-                ->willReturn(true);
+            ->method("isBootstrapped")
+            ->willReturn(true);
 
         $bucket = new TokenBucket(1, new Rate(1, Rate::SECOND), $storage);
 
         $storage->expects($this->never())
-                ->method("bootstrap");
+            ->method("bootstrap");
 
         $bucket->bootstrap();
     }
@@ -72,7 +72,7 @@ class TokenBucketTest extends TestCase
      */
     public function testDefaultBootstrap()
     {
-        $rate        = new Rate(1, Rate::SECOND);
+        $rate = new Rate(1, Rate::SECOND);
         $tokenBucket = new TokenBucket(10, $rate, new SingleProcessStorage());
         $tokenBucket->bootstrap();
 
@@ -83,14 +83,14 @@ class TokenBucketTest extends TestCase
      * Tests bootstrapping with tokens.
      *
      * @param int $capacity The capacity.
-     * @param int $tokens   The initial amount of tokens.
+     * @param int $tokens The initial amount of tokens.
      *
      * @test
      * @dataProvider provideTestBootstrapWithInitialTokens
      */
     public function testBootstrapWithInitialTokens($capacity, $tokens)
     {
-        $rate        = new Rate(1, Rate::SECOND);
+        $rate = new Rate(1, Rate::SECOND);
         $tokenBucket = new TokenBucket($capacity, $rate, new SingleProcessStorage());
         $tokenBucket->bootstrap($tokens);
 
@@ -118,7 +118,7 @@ class TokenBucketTest extends TestCase
      */
     public function testConsume()
     {
-        $rate   = new Rate(1, Rate::SECOND);
+        $rate = new Rate(1, Rate::SECOND);
         $bucket = new TokenBucket(10, $rate, new SingleProcessStorage());
         $bucket->bootstrap(10);
 
@@ -141,7 +141,7 @@ class TokenBucketTest extends TestCase
      */
     public function testWaitCalculation()
     {
-        $rate   = new Rate(1, Rate::SECOND);
+        $rate = new Rate(1, Rate::SECOND);
         $bucket = new TokenBucket(10, $rate, new SingleProcessStorage());
         $bucket->bootstrap(1);
 
@@ -164,7 +164,7 @@ class TokenBucketTest extends TestCase
      */
     public function testWaitingAddsTokens()
     {
-        $rate   = new Rate(1, Rate::SECOND);
+        $rate = new Rate(1, Rate::SECOND);
         $bucket = new TokenBucket(10, $rate, new SingleProcessStorage());
         $bucket->bootstrap();
 
@@ -184,7 +184,7 @@ class TokenBucketTest extends TestCase
      */
     public function testConsumeInsufficientDontRemoveTokens()
     {
-        $rate   = new Rate(1, Rate::SECOND);
+        $rate = new Rate(1, Rate::SECOND);
         $bucket = new TokenBucket(10, $rate, new SingleProcessStorage());
         $bucket->bootstrap(1);
 
@@ -204,7 +204,7 @@ class TokenBucketTest extends TestCase
      */
     public function testConsumeSufficientRemoveTokens()
     {
-        $rate   = new Rate(1, Rate::SECOND);
+        $rate = new Rate(1, Rate::SECOND);
         $bucket = new TokenBucket(10, $rate, new SingleProcessStorage());
         $bucket->bootstrap(1);
 
@@ -215,26 +215,24 @@ class TokenBucketTest extends TestCase
 
     /**
      * Tests bootstrapping with too many tokens.
-     *
-     * @test
-     * @expectedException \LengthException
      */
     public function testInitialTokensTooMany()
     {
-        $rate   = new Rate(1, Rate::SECOND);
+        $this->expectException(\LengthException::class);
+
+        $rate = new Rate(1, Rate::SECOND);
         $bucket = new TokenBucket(20, $rate, new SingleProcessStorage());
         $bucket->bootstrap(21);
     }
 
     /**
      * Tests consuming more than the capacity.
-     *
-     * @test
-     * @expectedException \LengthException
      */
     public function testConsumeTooMany()
     {
-        $rate        = new Rate(1, Rate::SECOND);
+        $this->expectException(\LengthException::class);
+
+        $rate = new Rate(1, Rate::SECOND);
         $tokenBucket = new TokenBucket(20, $rate, new SingleProcessStorage());
         $tokenBucket->bootstrap();
 
@@ -248,7 +246,7 @@ class TokenBucketTest extends TestCase
      */
     public function testCapacity()
     {
-        $rate        = new Rate(1, Rate::SECOND);
+        $rate = new Rate(1, Rate::SECOND);
         $tokenBucket = new TokenBucket(10, $rate, new SingleProcessStorage());
         $tokenBucket->bootstrap();
         sleep(11);
@@ -260,12 +258,12 @@ class TokenBucketTest extends TestCase
     /**
      * Tests building a token bucket with an invalid caüacity fails.
      *
-     * @test
-     * @expectedException InvalidArgumentException
      * @dataProvider provideTestInvalidCapacity
      */
     public function testInvalidCapacity($capacity)
     {
+        $this->expectException(\InvalidArgumentException::class);
+
         $rate = new Rate(1, Rate::SECOND);
         new TokenBucket($capacity, $rate, new SingleProcessStorage());
     }
