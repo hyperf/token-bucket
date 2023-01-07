@@ -97,7 +97,7 @@ class SharedStorageTest extends TestCase
         if (getenv("PGSQL_DSN")) {
             $cases[] = [
                 function ($name) {
-                    $pdo = new \PDO(getenv("PGSQL_DSN"), getenv("PGSQL_USER"));
+                    $pdo = new \PDO(getenv("PGSQL_DSN"), getenv("PGSQL_USER"), 'postgres');
                     $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
                     return new PDOStorage($name, $pdo);
                 }
@@ -138,7 +138,6 @@ class SharedStorageTest extends TestCase
      * @param callable $factory The storage factory.
      *
      * @dataProvider provideStorageFactories
-     * @test
      */
     public function testStoragesDontInterfere(callable $factory)
     {

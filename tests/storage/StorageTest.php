@@ -91,7 +91,7 @@ class StorageTest extends TestCase
         if (getenv("PGSQL_DSN")) {
             $cases["PGSQL"] = [
                 function () {
-                    $pdo = new \PDO(getenv("PGSQL_DSN"), getenv("PGSQL_USER"));
+                    $pdo = new \PDO(getenv("PGSQL_DSN"), getenv("PGSQL_USER"), 'postgres');
                     $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
                     return new PDOStorage("test", $pdo);
                 }
