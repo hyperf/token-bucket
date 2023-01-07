@@ -2,9 +2,10 @@
 
 namespace bandwidthThrottle\tokenBucket\storage;
 
-use phpmock\phpunit\PHPMock;
 use org\bovigo\vfs\vfsStream;
 use org\bovigo\vfs\vfsStreamFile;
+use phpmock\phpunit\PHPMock;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Tests for FileStorage.
@@ -12,34 +13,34 @@ use org\bovigo\vfs\vfsStreamFile;
  * @author Markus Malkusch <markus@malkusch.de>
  * @link bitcoin:1335STSwu9hST4vcMRppEPgENMHD2r1REK Donations
  * @license WTFPL
- * @see FileStorage
+ * @see  FileStorage
  */
-class FileStorageTest extends \PHPUnit_Framework_TestCase
+class FileStorageTest extends TestCase
 {
-
     use PHPMock;
-    
+
     /**
      * Tests opening the file fails.
-     *
-     * @expectedException bandwidthThrottle\tokenBucket\storage\StorageException
      */
     public function testOpeningFails()
     {
         vfsStream::setup('test');
+
+        $this->expectException(StorageException::class);
+
         @new FileStorage(vfsStream::url("test/nonexisting/test"));
     }
 
     /**
      * Tests seeking fails in setMicrotime().
-     *
-     * @expectedException bandwidthThrottle\tokenBucket\storage\StorageException
      */
     public function testSetMicrotimeFailsSeeking()
     {
         $this->getFunctionMock(__NAMESPACE__, "fseek")
-                ->expects($this->atLeastOnce())
-                ->willReturn(-1);
+            ->expects($this->atLeastOnce())
+            ->willReturn(-1);
+
+        $this->expectException(StorageException::class);
 
         vfsStream::setup('test');
         $storage = new FileStorage(vfsStream::url("test/data"));
@@ -48,14 +49,14 @@ class FileStorageTest extends \PHPUnit_Framework_TestCase
 
     /**
      * Tests writings fails in setMicrotime().
-     *
-     * @expectedException bandwidthThrottle\tokenBucket\storage\StorageException
      */
     public function testSetMicrotimeFailsWriting()
     {
         $this->getFunctionMock(__NAMESPACE__, "fwrite")
-                ->expects($this->atLeastOnce())
-                ->willReturn(false);
+            ->expects($this->atLeastOnce())
+            ->willReturn(false);
+
+        $this->expectException(StorageException::class);
 
         vfsStream::setup('test');
         $storage = new FileStorage(vfsStream::url("test/data"));
@@ -64,14 +65,14 @@ class FileStorageTest extends \PHPUnit_Framework_TestCase
 
     /**
      * Tests seeking fails in getMicrotime().
-     *
-     * @expectedException bandwidthThrottle\tokenBucket\storage\StorageException
      */
     public function testGetMicrotimeFailsSeeking()
     {
         $this->getFunctionMock(__NAMESPACE__, "fseek")
-                ->expects($this->atLeastOnce())
-                ->willReturn(-1);
+            ->expects($this->atLeastOnce())
+            ->willReturn(-1);
+
+        $this->expectException(StorageException::class);
 
         vfsStream::setup('test');
         $storage = new FileStorage(vfsStream::url("test/data"));
@@ -80,14 +81,14 @@ class FileStorageTest extends \PHPUnit_Framework_TestCase
 
     /**
      * Tests reading fails in getMicrotime().
-     *
-     * @expectedException bandwidthThrottle\tokenBucket\storage\StorageException
      */
     public function testGetMicrotimeFailsReading()
     {
         $this->getFunctionMock(__NAMESPACE__, "fread")
-                ->expects($this->atLeastOnce())
-                ->willReturn(false);
+            ->expects($this->atLeastOnce())
+            ->willReturn(false);
+
+        $this->expectException(StorageException::class);
 
         vfsStream::setup('test');
         $storage = new FileStorage(vfsStream::url("test/data"));
@@ -96,32 +97,31 @@ class FileStorageTest extends \PHPUnit_Framework_TestCase
 
     /**
      * Tests readinging too little in getMicrotime().
-     *
-     * @expectedException bandwidthThrottle\tokenBucket\storage\StorageException
      */
     public function testGetMicrotimeReadsToLittle()
     {
+        $this->expectException(StorageException::class);
+
         $data = new vfsStreamFile("data");
         $data->setContent("1234567");
         vfsStream::setup('test')->addChild($data);
-        
+
         $storage = new FileStorage(vfsStream::url("test/data"));
         $storage->getMicrotime();
     }
 
     /**
      * Tests deleting fails.
-     *
-     * @test
-     * @expectedException bandwidthThrottle\tokenBucket\storage\StorageException
      */
     public function testRemoveFails()
     {
+        $this->expectException(StorageException::class);
+
         $data = new vfsStreamFile("data");
         $root = vfsStream::setup('test');
         $root->chmod(0);
         $root->addChild($data);
-        
+
         $storage = new FileStorage(vfsStream::url("test/data"));
         $storage->remove();
     }

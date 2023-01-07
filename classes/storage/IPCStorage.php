@@ -18,27 +18,27 @@ use bandwidthThrottle\tokenBucket\util\DoublePacker;
  */
 final class IPCStorage implements Storage, GlobalScope
 {
-    
+
     /**
      * @var Mutex The mutex.
      */
     private $mutex;
-    
+
     /**
      * @var int $key The System V IPC key.
      */
-    private $key;
-    
+    private int $key;
+
     /**
      * @var resource The shared memory.
      */
     private $memory;
-    
+
     /**
      * @var resource The semaphore id.
      */
     private $semaphore;
-    
+
     /**
      * Sets the System V IPC key for the shared memory and its semaphore.
      *
@@ -48,12 +48,12 @@ final class IPCStorage implements Storage, GlobalScope
      *
      * @throws StorageException Could initialize IPC infrastructure.
      */
-    public function __construct($key)
+    public function __construct(int $key)
     {
         $this->key = $key;
         $this->attach();
     }
-    
+
     /**
      * Attaches the shared memory segment.
      *
@@ -67,13 +67,13 @@ final class IPCStorage implements Storage, GlobalScope
         } catch (\InvalidArgumentException $e) {
             throw new StorageException("Could not get semaphore id.", 0, $e);
         }
-        
+
         $this->memory = shm_attach($this->key, 128);
         if (!is_resource($this->memory)) {
             throw new StorageException("Failed to attach to shared memory.");
         }
     }
-    
+
     public function bootstrap($microtime)
     {
         if (is_null($this->memory)) {
@@ -81,12 +81,12 @@ final class IPCStorage implements Storage, GlobalScope
         }
         $this->setMicrotime($microtime);
     }
-    
+
     public function isBootstrapped()
     {
         return !is_null($this->memory) && shm_has_var($this->memory, 0);
     }
-    
+
     public function remove()
     {
         if (!shm_remove($this->memory)) {
@@ -110,7 +110,7 @@ final class IPCStorage implements Storage, GlobalScope
             throw new StorageException("Could not store in shared memory.");
         }
     }
-    
+
     /**
      * @SuppressWarnings(PHPMD)
      */

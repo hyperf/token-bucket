@@ -2,6 +2,8 @@
 
 namespace bandwidthThrottle\tokenBucket\storage;
 
+use PHPUnit\Framework\TestCase;
+
 /**
  * Tests for PDOStorage.
  *
@@ -16,21 +18,21 @@ namespace bandwidthThrottle\tokenBucket\storage;
  * @license WTFPL
  * @see PDOStorage
  */
-class PDOStorageTest extends \PHPUnit_Framework_TestCase
+class PDOStorageTest extends TestCase
 {
 
     /**
      * @var Storage[] The tested storages;
      */
     private $storages = [];
-    
+
     protected function tearDown()
     {
         foreach ($this->storages as $storage) {
             $storage->remove();
         }
     }
-    
+
     /**
      * Provides the PDO.
      *
@@ -137,7 +139,7 @@ class PDOStorageTest extends \PHPUnit_Framework_TestCase
         $storageB = new PDOStorage("B", $pdo);
         $storageB->bootstrap(2);
         $this->storages[] = $storageB;
-        
+
         $this->assertEquals(1, $storageA->getMicrotime());
         $this->assertEquals(2, $storageB->getMicrotime());
     }

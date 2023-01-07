@@ -4,6 +4,7 @@ namespace bandwidthThrottle\tokenBucket\util;
 
 use bandwidthThrottle\tokenBucket\Rate;
 use phpmock\phpunit\PHPMock;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Tests for TokenConverter.
@@ -11,19 +12,19 @@ use phpmock\phpunit\PHPMock;
  * @author Markus Malkusch <markus@malkusch.de>
  * @link bitcoin:1335STSwu9hST4vcMRppEPgENMHD2r1REK Donations
  * @license WTFPL
- * @see TokenConverter
+ * @see  TokenConverter
  */
-class TokenConverterTest extends \PHPUnit_Framework_TestCase
+class TokenConverterTest extends TestCase
 {
 
     use PHPMock;
-    
+
     /**
      * Tests convertSecondsToTokens().
      *
-     * @param int    $expected The expected tokens.
-     * @param double $seconds  The seconds.
-     * @param Rate   $rate     The rate.
+     * @param int $expected The expected tokens.
+     * @param double $seconds The seconds.
+     * @param Rate $rate The rate.
      *
      * @test
      * @dataProvider provideTestConvertSecondsToTokens
@@ -33,7 +34,7 @@ class TokenConverterTest extends \PHPUnit_Framework_TestCase
         $converter = new TokenConverter($rate);
         $this->assertEquals($expected, $converter->convertSecondsToTokens($seconds));
     }
-    
+
     /**
      * Provides test cases for testConvertSecondsToTokens().
      *
@@ -43,7 +44,7 @@ class TokenConverterTest extends \PHPUnit_Framework_TestCase
     {
         return [
             [0, 0.9, new Rate(1, Rate::SECOND)],
-            [1, 1,   new Rate(1, Rate::SECOND)],
+            [1, 1, new Rate(1, Rate::SECOND)],
             [1, 1.1, new Rate(1, Rate::SECOND)],
 
             [1000, 1, new Rate(1, Rate::MILLISECOND)],
@@ -54,13 +55,13 @@ class TokenConverterTest extends \PHPUnit_Framework_TestCase
             [1, 61, new Rate(1, Rate::MINUTE)],
         ];
     }
-    
+
     /**
      * Tests convertTokensToSeconds().
      *
      * @param double $expected The expected seconds.
-     * @param int    $tokens   The tokens.
-     * @param Rate   $rate     The rate.
+     * @param int $tokens The tokens.
+     * @param Rate $rate The rate.
      *
      * @test
      * @dataProvider provideTestconvertTokensToSeconds
@@ -70,7 +71,7 @@ class TokenConverterTest extends \PHPUnit_Framework_TestCase
         $converter = new TokenConverter($rate);
         $this->assertEquals($expected, $converter->convertTokensToSeconds($tokens));
     }
-    
+
     /**
      * Provides test cases for testconvertTokensToSeconds().
      *
@@ -85,13 +86,13 @@ class TokenConverterTest extends \PHPUnit_Framework_TestCase
             [2, 2, new Rate(1, Rate::SECOND)],
         ];
     }
-    
+
     /**
      * Tests convertTokensToMicrotime().
      *
-     * @param double $delta  The expected delta.
-     * @param int    $tokens The tokens.
-     * @param Rate   $rate   The rate.
+     * @param double $delta The expected delta.
+     * @param int $tokens The tokens.
+     * @param Rate $rate The rate.
      *
      * @test
      * @dataProvider provideTestConvertTokensToMicrotime
@@ -105,7 +106,7 @@ class TokenConverterTest extends \PHPUnit_Framework_TestCase
 
         $this->assertEquals(microtime(true) + $delta, $converter->convertTokensToMicrotime($tokens));
     }
-    
+
     /**
      * Provides test cases for testConvertTokensToMicrotime().
      *

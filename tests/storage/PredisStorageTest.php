@@ -4,6 +4,7 @@ namespace bandwidthThrottle\tokenBucket\storage;
 
 use Predis\Client;
 use Predis\ClientException;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Tests for PredisStorage.
@@ -15,7 +16,7 @@ use Predis\ClientException;
  * @license WTFPL
  * @see PredisStorage
  */
-class PredisStorageTest extends \PHPUnit_Framework_TestCase
+class PredisStorageTest extends TestCase
 {
 
     /**
@@ -27,18 +28,18 @@ class PredisStorageTest extends \PHPUnit_Framework_TestCase
      * @var PredisStorage The SUT.
      */
     private $storage;
-    
+
     protected function setUp()
     {
         parent::setUp();
-        
+
         if (!getenv("REDIS_URI")) {
             $this->markTestSkipped();
         }
         $this->redis   = new Client(getenv("REDIS_URI"));
         $this->storage = new PredisStorage("test", $this->redis);
     }
-    
+
     /**
      * Tests broken server communication.
      *
@@ -81,7 +82,7 @@ class PredisStorageTest extends \PHPUnit_Framework_TestCase
             }],
         ];
     }
-    
+
     /**
      * Tests remove() fails.
      *
@@ -95,7 +96,7 @@ class PredisStorageTest extends \PHPUnit_Framework_TestCase
 
         $this->storage->remove();
     }
-    
+
     /**
      * Tests setMicrotime() fails.
      *
@@ -111,7 +112,7 @@ class PredisStorageTest extends \PHPUnit_Framework_TestCase
         $storage = new PredisStorage("test", $redis);
         $storage->setMicrotime(1);
     }
-    
+
     /**
      * Tests getMicrotime() fails.
      *

@@ -7,6 +7,7 @@ use Redis;
 use Predis\Client;
 use bandwidthThrottle\tokenBucket\TokenBucket;
 use bandwidthThrottle\tokenBucket\Rate;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Tests for Storage implementations.
@@ -24,21 +25,21 @@ use bandwidthThrottle\tokenBucket\Rate;
  * @license WTFPL
  * @see Storage
  */
-class StorageTest extends \PHPUnit_Framework_TestCase
+class StorageTest extends TestCase
 {
 
     /**
      * @var Storage The tested storage;
      */
     private $storage;
-    
+
     protected function tearDown()
     {
         if (!is_null($this->storage) && $this->storage->isBootstrapped()) {
             $this->storage->remove();
         }
     }
-    
+
     /**
      * Provides uninitialized Storage implementations.
      *
@@ -66,7 +67,7 @@ class StorageTest extends \PHPUnit_Framework_TestCase
                 return new IPCStorage(ftok(__FILE__, "a"));
             }],
         ];
-        
+
         if (getenv("MYSQL_DSN")) {
             $cases["MYSQL"] = [function () {
                 $pdo = new \PDO(getenv("MYSQL_DSN"), getenv("MYSQL_USER"));
@@ -104,7 +105,7 @@ class StorageTest extends \PHPUnit_Framework_TestCase
         }
         return $cases;
     }
-    
+
     /**
      * Tests setMicrotime() and getMicrotime().
      *
@@ -117,18 +118,18 @@ class StorageTest extends \PHPUnit_Framework_TestCase
         $this->storage = call_user_func($storageFactory);
         $this->storage->bootstrap(1);
         $this->storage->getMicrotime();
-        
+
         $this->storage->setMicrotime(1.1);
         $this->assertSame(1.1, $this->storage->getMicrotime());
         $this->assertSame(1.1, $this->storage->getMicrotime());
-        
+
         $this->storage->setMicrotime(1.2);
         $this->assertSame(1.2, $this->storage->getMicrotime());
-        
+
         $this->storage->setMicrotime(1436551945.0192);
         $this->assertSame(1436551945.0192, $this->storage->getMicrotime());
     }
-    
+
     /**
      * Tests isBootstrapped().
      *
@@ -144,7 +145,7 @@ class StorageTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue($this->storage->isBootstrapped());
         $this->assertEquals(123, $this->storage->getMicrotime());
     }
-    
+
     /**
      * Tests isBootstrapped().
      *
@@ -163,7 +164,7 @@ class StorageTest extends \PHPUnit_Framework_TestCase
         $this->storage->remove();
         $this->assertFalse($this->storage->isBootstrapped());
     }
-    
+
     /**
      * Tests remove().
      *
@@ -179,7 +180,7 @@ class StorageTest extends \PHPUnit_Framework_TestCase
         $this->storage->remove();
         $this->assertFalse($this->storage->isBootstrapped());
     }
-    
+
     /**
      * When no tokens are available, the bucket should return false.
      *
@@ -197,7 +198,7 @@ class StorageTest extends \PHPUnit_Framework_TestCase
 
         $this->assertFalse($bucket->consume(10));
     }
-    
+
     /**
      * When tokens are available, the bucket should return true.
      *
@@ -215,7 +216,7 @@ class StorageTest extends \PHPUnit_Framework_TestCase
 
         $this->assertTrue($bucket->consume(10));
     }
-    
+
     /**
      * Tests synchronized bootstrap
      *

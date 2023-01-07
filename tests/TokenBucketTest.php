@@ -7,6 +7,7 @@ use phpmock\environment\SleepEnvironmentBuilder;
 use phpmock\environment\MockEnvironment;
 use bandwidthThrottle\tokenBucket\storage\SingleProcessStorage;
 use bandwidthThrottle\tokenBucket\storage\Storage;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Test for TokenBucket.
@@ -16,15 +17,15 @@ use bandwidthThrottle\tokenBucket\storage\Storage;
  * @license WTFPL
  * @see TokenBucket
  */
-class TokenBucketTest extends \PHPUnit_Framework_TestCase
+class TokenBucketTest extends TestCase
 {
-    
+
     /**
      * @var MockEnvironment Mock for microtime() and usleep().
      */
     private $sleepEnvironent;
-    
-    protected function setUp()
+
+    protected function setUp(): void
     {
         $builder = new SleepEnvironmentBuilder();
         $builder->addNamespace(__NAMESPACE__)
@@ -34,12 +35,12 @@ class TokenBucketTest extends \PHPUnit_Framework_TestCase
         $this->sleepEnvironent = $builder->build();
         $this->sleepEnvironent->enable();
     }
-    
-    protected function tearDown()
+
+    protected function tearDown(): void
     {
         $this->sleepEnvironent->disable();
     }
-    
+
     /**
      * Tests bootstrap() is bootstraps not on already bootstrapped storages.
      *
@@ -55,15 +56,15 @@ class TokenBucketTest extends \PHPUnit_Framework_TestCase
         $storage->expects($this->any())
                 ->method("isBootstrapped")
                 ->willReturn(true);
-        
+
         $bucket = new TokenBucket(1, new Rate(1, Rate::SECOND), $storage);
-        
+
         $storage->expects($this->never())
                 ->method("bootstrap");
-        
+
         $bucket->bootstrap();
     }
-    
+
     /**
      * Tests bootstrapping sets to 0 tokens.
      *
@@ -109,7 +110,7 @@ class TokenBucketTest extends \PHPUnit_Framework_TestCase
             [10, 10]
         ];
     }
-    
+
     /**
      * Tests comsumption of cumulated tokens.
      *
@@ -120,14 +121,14 @@ class TokenBucketTest extends \PHPUnit_Framework_TestCase
         $rate   = new Rate(1, Rate::SECOND);
         $bucket = new TokenBucket(10, $rate, new SingleProcessStorage());
         $bucket->bootstrap(10);
-        
+
         $this->assertTrue($bucket->consume(1));
         $this->assertTrue($bucket->consume(2));
         $this->assertTrue($bucket->consume(3));
         $this->assertTrue($bucket->consume(4));
-        
+
         $this->assertFalse($bucket->consume(1));
-        
+
         sleep(3);
         $this->assertFalse($bucket->consume(4, $seconds));
         $this->assertEquals(1, $seconds);
@@ -143,19 +144,19 @@ class TokenBucketTest extends \PHPUnit_Framework_TestCase
         $rate   = new Rate(1, Rate::SECOND);
         $bucket = new TokenBucket(10, $rate, new SingleProcessStorage());
         $bucket->bootstrap(1);
-        
+
         $bucket->consume(3, $seconds);
         $this->assertEquals(2, $seconds);
         sleep(1);
-        
+
         $bucket->consume(3, $seconds);
         $this->assertEquals(1, $seconds);
         sleep(1);
-        
+
         $bucket->consume(3, $seconds);
         $this->assertEquals(0, $seconds);
     }
-    
+
     /**
      * Test token rate.
      *
@@ -171,11 +172,11 @@ class TokenBucketTest extends \PHPUnit_Framework_TestCase
 
         sleep(1);
         $this->assertTrue($bucket->consume(1));
-        
+
         sleep(2);
         $this->assertTrue($bucket->consume(2));
     }
-    
+
     /**
      * Tests consuming insuficient tokens wont remove any token.
      *
@@ -192,7 +193,7 @@ class TokenBucketTest extends \PHPUnit_Framework_TestCase
 
         $this->assertFalse($bucket->consume(2, $seconds));
         $this->assertEquals(1, $seconds);
-        
+
         $this->assertTrue($bucket->consume(1));
     }
 
@@ -211,7 +212,7 @@ class TokenBucketTest extends \PHPUnit_Framework_TestCase
         $this->assertFalse($bucket->consume(1, $seconds));
         $this->assertEquals(1, $seconds);
     }
-    
+
     /**
      * Tests bootstrapping with too many tokens.
      *
@@ -224,7 +225,7 @@ class TokenBucketTest extends \PHPUnit_Framework_TestCase
         $bucket = new TokenBucket(20, $rate, new SingleProcessStorage());
         $bucket->bootstrap(21);
     }
-    
+
     /**
      * Tests consuming more than the capacity.
      *
@@ -239,7 +240,7 @@ class TokenBucketTest extends \PHPUnit_Framework_TestCase
 
         $tokenBucket->consume(21);
     }
-    
+
     /**
      * Test the capacity limit of the bucket
      *
@@ -255,7 +256,7 @@ class TokenBucketTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue($tokenBucket->consume(10));
         $this->assertFalse($tokenBucket->consume(1));
     }
-    
+
     /**
      * Tests building a token bucket with an invalid caüacity fails.
      *
@@ -281,7 +282,7 @@ class TokenBucketTest extends \PHPUnit_Framework_TestCase
             [-1],
         ];
     }
-    
+
     /**
      * After bootstraping, getTokens() should return the initial amount.
      *
@@ -293,10 +294,10 @@ class TokenBucketTest extends \PHPUnit_Framework_TestCase
         $bucket = new TokenBucket(10, $rate, new SingleProcessStorage());
 
         $bucket->bootstrap(10);
-        
+
         $this->assertEquals(10, $bucket->getTokens());
     }
-    
+
     /**
      * After one consumtion, getTokens() should return the initial amount - 1.
      *
@@ -307,12 +308,12 @@ class TokenBucketTest extends \PHPUnit_Framework_TestCase
         $rate = new Rate(1, Rate::SECOND);
         $bucket = new TokenBucket(10, $rate, new SingleProcessStorage());
         $bucket->bootstrap(10);
-        
+
         $bucket->consume(1);
-        
+
         $this->assertEquals(9, $bucket->getTokens());
     }
-    
+
     /**
      * After consuming all, getTokens() should return 0.
      *
@@ -323,12 +324,12 @@ class TokenBucketTest extends \PHPUnit_Framework_TestCase
         $rate = new Rate(1, Rate::SECOND);
         $bucket = new TokenBucket(10, $rate, new SingleProcessStorage());
         $bucket->bootstrap(10);
-        
+
         $bucket->consume(10);
-        
+
         $this->assertEquals(0, $bucket->getTokens());
     }
-    
+
     /**
      * After consuming too many, getTokens() should return the same as before.
      *
@@ -339,17 +340,17 @@ class TokenBucketTest extends \PHPUnit_Framework_TestCase
         $rate = new Rate(1, Rate::SECOND);
         $bucket = new TokenBucket(10, $rate, new SingleProcessStorage());
         $bucket->bootstrap(10);
-        
+
         try {
             $bucket->consume(11);
             $this->fail("Expected an exception.");
         } catch (\LengthException $e) {
             // expected
         }
-        
+
         $this->assertEquals(10, $bucket->getTokens());
     }
-    
+
     /**
      * After waiting on an non full bucket, getTokens() should return more.
      *
@@ -360,12 +361,12 @@ class TokenBucketTest extends \PHPUnit_Framework_TestCase
         $rate = new Rate(1, Rate::SECOND);
         $bucket = new TokenBucket(10, $rate, new SingleProcessStorage());
         $bucket->bootstrap(5);
-        
+
         sleep(1);
-        
+
         $this->assertEquals(6, $bucket->getTokens());
     }
-    
+
     /**
      * After waiting the complete refill period on an empty bucket, getTokens()
      * should return the capacity of the bucket.
@@ -377,12 +378,12 @@ class TokenBucketTest extends \PHPUnit_Framework_TestCase
         $rate = new Rate(1, Rate::SECOND);
         $bucket = new TokenBucket(10, $rate, new SingleProcessStorage());
         $bucket->bootstrap(0);
-        
+
         sleep(10);
-        
+
         $this->assertEquals(10, $bucket->getTokens());
     }
-    
+
     /**
      * After waiting longer than the complete refill period on an empty bucket,
      * getTokens() should return the capacity of the bucket.
@@ -394,9 +395,9 @@ class TokenBucketTest extends \PHPUnit_Framework_TestCase
         $rate = new Rate(1, Rate::SECOND);
         $bucket = new TokenBucket(10, $rate, new SingleProcessStorage());
         $bucket->bootstrap(0);
-        
+
         sleep(11);
-        
+
         $this->assertEquals(10, $bucket->getTokens());
     }
 }

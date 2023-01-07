@@ -2,6 +2,8 @@
 
 namespace bandwidthThrottle\tokenBucket;
 
+use PHPUnit\Framework\TestCase;
+
 /**
  * Test for Rate.
  *
@@ -10,7 +12,7 @@ namespace bandwidthThrottle\tokenBucket;
  * @license WTFPL
  * @see Rate
  */
-class RateTest extends \PHPUnit_Framework_TestCase
+class RateTest extends TestCase
 {
 
     /**
@@ -26,7 +28,7 @@ class RateTest extends \PHPUnit_Framework_TestCase
     {
         $this->assertEquals($expected, $rate->getTokensPerSecond());
     }
-    
+
     /**
      * Provides tests cases for testGetTokensPerSecond().
      *
@@ -55,7 +57,7 @@ class RateTest extends \PHPUnit_Framework_TestCase
             [2000000, new Rate(2, Rate::MICROSECOND)],
         ];
     }
-    
+
     /**
      * Tests building a rate with an invalid unit fails.
      *

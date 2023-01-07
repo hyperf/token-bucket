@@ -3,6 +3,7 @@
 namespace bandwidthThrottle\tokenBucket\storage;
 
 use Redis;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Tests for PHPRedisStorage.
@@ -14,7 +15,7 @@ use Redis;
  * @license WTFPL
  * @see PHPRedisStorage
  */
-class PHPRedisStorageTest extends \PHPUnit_Framework_TestCase
+class PHPRedisStorageTest extends TestCase
 {
 
     /**
@@ -26,21 +27,21 @@ class PHPRedisStorageTest extends \PHPUnit_Framework_TestCase
      * @var PHPRedisStorage The SUT.
      */
     private $storage;
-    
+
     protected function setUp()
     {
         parent::setUp();
-        
+
         if (!getenv("REDIS_URI")) {
             $this->markTestSkipped();
         }
         $uri = parse_url(getenv("REDIS_URI"));
         $this->redis = new Redis();
         $this->redis->connect($uri["host"]);
-        
+
         $this->storage = new PHPRedisStorage("test", $this->redis);
     }
-    
+
     /**
      * Tests broken server communication.
      *
@@ -80,7 +81,7 @@ class PHPRedisStorageTest extends \PHPUnit_Framework_TestCase
             }],
         ];
     }
-    
+
     /**
      * Tests remove() fails.
      *
@@ -94,7 +95,7 @@ class PHPRedisStorageTest extends \PHPUnit_Framework_TestCase
 
         $this->storage->remove();
     }
-    
+
     /**
      * Tests setMicrotime() fails.
      *
@@ -109,7 +110,7 @@ class PHPRedisStorageTest extends \PHPUnit_Framework_TestCase
         $storage = new PHPRedisStorage("test", $redis);
         $storage->setMicrotime(1);
     }
-    
+
     /**
      * Tests getMicrotime() fails.
      *

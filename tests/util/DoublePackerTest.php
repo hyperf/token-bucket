@@ -2,6 +2,8 @@
 
 namespace bandwidthThrottle\tokenBucket\util;
 
+use PHPUnit\Framework\TestCase;
+
 /**
  * Tests for DoublePacker.
  *
@@ -10,7 +12,7 @@ namespace bandwidthThrottle\tokenBucket\util;
  * @license WTFPL
  * @see DoublePacker
  */
-class DoublePackerTest extends \PHPUnit_Framework_TestCase
+class DoublePackerTest extends TestCase
 {
 
     /**
@@ -26,7 +28,7 @@ class DoublePackerTest extends \PHPUnit_Framework_TestCase
     {
         $this->assertEquals($expected, DoublePacker::pack($input));
     }
-    
+
     /**
      * Provides test cases for testPack().
      *
@@ -40,7 +42,7 @@ class DoublePackerTest extends \PHPUnit_Framework_TestCase
             [pack("d", 1)  , 1],
         ];
     }
-    
+
     /**
      * Tests unpack() fails.
      *
@@ -54,7 +56,7 @@ class DoublePackerTest extends \PHPUnit_Framework_TestCase
     {
         DoublePacker::unpack($input);
     }
-    
+
     /**
      * Provides test cases for testUnpackFails().
      *
@@ -82,7 +84,7 @@ class DoublePackerTest extends \PHPUnit_Framework_TestCase
     {
         $this->assertEquals($expected, DoublePacker::unpack($input));
     }
-    
+
     /**
      * Provides test cases for testConvert().
      *

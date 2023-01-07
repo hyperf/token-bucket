@@ -2,6 +2,7 @@
 
 namespace bandwidthThrottle\tokenBucket\storage;
 
+use PHPUnit\Framework\TestCase;
 /**
  * Tests for MemcachedStorage.
  *
@@ -12,7 +13,7 @@ namespace bandwidthThrottle\tokenBucket\storage;
  * @license WTFPL
  * @see MemcachedStorage
  */
-class MemcachedStorageTest extends \PHPUnit_Framework_TestCase
+class MemcachedStorageTest extends TestCase
 {
 
     /**
@@ -24,7 +25,7 @@ class MemcachedStorageTest extends \PHPUnit_Framework_TestCase
      * @var MemcachedStorage The SUT.
      */
     private $storage;
-    
+
     protected function setUp()
     {
         parent::setUp();
@@ -39,11 +40,11 @@ class MemcachedStorageTest extends \PHPUnit_Framework_TestCase
         $this->storage = new MemcachedStorage("test", $this->memcached);
         $this->storage->bootstrap(123);
     }
-    
+
     protected function tearDown()
     {
         parent::tearDown();
-        
+
         if (!getenv("MEMCACHE_HOST")) {
             return;
         }
@@ -120,7 +121,7 @@ class MemcachedStorageTest extends \PHPUnit_Framework_TestCase
         $this->memcached->resetServerList();
         $this->storage->setMicrotime(123);
     }
-    
+
     /**
      * Tests setMicrotime() returns silenty if the cas operation failed.
      *
@@ -130,16 +131,16 @@ class MemcachedStorageTest extends \PHPUnit_Framework_TestCase
     {
         // acquire cas token
         $this->storage->getMicrotime();
-        
+
         // invalidate the cas token
         $storage2 = new MemcachedStorage("test", $this->memcached);
         $storage2->getMicrotime();
         $storage2->setMicrotime(234);
-        
+
         $this->storage->setMicrotime(123);
     }
-    
-    
+
+
     /**
      * Tests getMicrotime() fails.
      *

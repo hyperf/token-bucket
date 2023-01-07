@@ -5,6 +5,7 @@ namespace bandwidthThrottle\tokenBucket\storage;
 use org\bovigo\vfs\vfsStream;
 use Redis;
 use Predis\Client;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Tests for shared Storage implementations.
@@ -22,14 +23,14 @@ use Predis\Client;
  * @license WTFPL
  * @see Storage
  */
-class SharedStorageTest extends \PHPUnit_Framework_TestCase
+class SharedStorageTest extends TestCase
 {
 
     /**
      * @var Storages Tests storages.
      */
     private $storages = [];
-    
+
     protected function tearDown()
     {
         foreach ($this->storages as $storage) {
@@ -40,7 +41,7 @@ class SharedStorageTest extends \PHPUnit_Framework_TestCase
             }
         }
     }
-    
+
     /**
      * Provides shared Storage implementations.
      *
@@ -69,17 +70,17 @@ class SharedStorageTest extends \PHPUnit_Framework_TestCase
                 return new PDOStorage($name, $pdo);
             }],
         ];
-        
+
         if (getenv("MYSQL_DSN")) {
             $cases[] = [function ($name) {
                 $pdo = new \PDO(getenv("MYSQL_DSN"), getenv("MYSQL_USER"));
                 $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
                 $pdo->setAttribute(\PDO::ATTR_AUTOCOMMIT, false);
-                
+
                 $storage = new PDOStorage($name, $pdo);
-                
+
                 $pdo->setAttribute(\PDO::ATTR_AUTOCOMMIT, true);
-                
+
                 return $storage;
             }];
         }
@@ -104,7 +105,7 @@ class SharedStorageTest extends \PHPUnit_Framework_TestCase
                 $redis->connect($uri["host"]);
                 return new PHPRedisStorage($name, $redis);
             }];
-            
+
             $cases["PredisStorage"] = [function ($name) {
                 $redis = new Client(getenv("REDIS_URI"));
                 return new PredisStorage($name, $redis);
@@ -112,7 +113,7 @@ class SharedStorageTest extends \PHPUnit_Framework_TestCase
         }
         return $cases;
     }
-    
+
     /**
      * Tests two storages with different names don't interfere each other.
      *
@@ -132,10 +133,10 @@ class SharedStorageTest extends \PHPUnit_Framework_TestCase
         $storageB->bootstrap(0);
         $storageB->getMicrotime();
         $this->storages[] = $storageB;
-        
+
         $storageA->setMicrotime(1);
         $storageB->setMicrotime(2);
-        
+
         $this->assertNotEquals($storageA->getMicrotime(), $storageB->getMicrotime());
     }
 }

@@ -5,6 +5,7 @@ namespace bandwidthThrottle\tokenBucket;
 use phpmock\environment\SleepEnvironmentBuilder;
 use phpmock\environment\MockEnvironment;
 use bandwidthThrottle\tokenBucket\storage\SingleProcessStorage;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Test for BlockingConsumer.
@@ -14,15 +15,15 @@ use bandwidthThrottle\tokenBucket\storage\SingleProcessStorage;
  * @license WTFPL
  * @see BlockingConsumer
  */
-class BlockingConsumerTest extends \PHPUnit_Framework_TestCase
+class BlockingConsumerTest extends TestCase
 {
-    
+
     /**
      * @var MockEnvironment Mock for microtime() and usleep().
      */
     private $sleepEnvironent;
-    
-    protected function setUp()
+
+    protected function setUp(): void
     {
         $builder = new SleepEnvironmentBuilder();
         $builder->addNamespace(__NAMESPACE__)
@@ -32,12 +33,12 @@ class BlockingConsumerTest extends \PHPUnit_Framework_TestCase
         $this->sleepEnvironent = $builder->build();
         $this->sleepEnvironent->enable();
     }
-    
-    protected function tearDown()
+
+    protected function tearDown(): void
     {
         $this->sleepEnvironent->disable();
     }
-    
+
     /**
      * Tests comsumption of cumulated tokens.
      *
@@ -50,22 +51,22 @@ class BlockingConsumerTest extends \PHPUnit_Framework_TestCase
         $consumer = new BlockingConsumer($bucket);
         $bucket->bootstrap(10);
         $time = microtime(true);
-        
+
         $consumer->consume(1);
         $consumer->consume(2);
         $consumer->consume(3);
         $consumer->consume(4);
         $this->assertEquals(microtime(true) - $time, 0);
-        
+
         $consumer->consume(1);
         $this->assertEquals(microtime(true) - $time, 1);
-        
+
         sleep(3);
         $time = microtime(true);
         $consumer->consume(4);
         $this->assertEquals(microtime(true) - $time, 1);
     }
-    
+
     /**
      * Tests consume().
      *
@@ -81,12 +82,12 @@ class BlockingConsumerTest extends \PHPUnit_Framework_TestCase
         $bucket   = new TokenBucket(10000, $rate, new SingleProcessStorage());
         $consumer = new BlockingConsumer($bucket);
         $bucket->bootstrap();
-        
+
         $time = microtime(true);
         $consumer->consume($tokens);
         $this->assertEquals($expected, microtime(true) - $time);
     }
-    
+
     /**
      * Returns test cases for testConsume().
      *
@@ -102,7 +103,7 @@ class BlockingConsumerTest extends \PHPUnit_Framework_TestCase
             [2.5, 2500, new Rate(1, Rate::MILLISECOND)],
         ];
     }
-    
+
     /**
      * Tests consume() won't sleep less than one millisecond.
      *
@@ -116,11 +117,11 @@ class BlockingConsumerTest extends \PHPUnit_Framework_TestCase
 
         $consumer = new BlockingConsumer($bucket);
         $time     = microtime(true);
-        
+
         $consumer->consume(1);
         $this->assertLessThan(1e-5, abs((microtime(true) - $time) - 0.001));
     }
-    
+
     /**
      * consume() should fail after a timeout.
      *
@@ -133,10 +134,10 @@ class BlockingConsumerTest extends \PHPUnit_Framework_TestCase
         $bucket = new TokenBucket(1, $rate, new SingleProcessStorage());
         $bucket->bootstrap(0);
         $consumer = new BlockingConsumer($bucket, 9);
-        
+
         $consumer->consume(1);
     }
-    
+
     /**
      * consume() should not fail before a timeout.
      *
@@ -148,10 +149,10 @@ class BlockingConsumerTest extends \PHPUnit_Framework_TestCase
         $bucket = new TokenBucket(1, $rate, new SingleProcessStorage());
         $bucket->bootstrap(0);
         $consumer = new BlockingConsumer($bucket, 11);
-        
+
         $consumer->consume(1);
     }
-    
+
     /**
      * consume() should not never time out.
      *
@@ -163,7 +164,7 @@ class BlockingConsumerTest extends \PHPUnit_Framework_TestCase
         $bucket = new TokenBucket(1, $rate, new SingleProcessStorage());
         $bucket->bootstrap(0);
         $consumer = new BlockingConsumer($bucket);
-        
+
         $consumer->consume(1);
     }
 }
