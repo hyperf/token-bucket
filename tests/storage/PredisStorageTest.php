@@ -44,12 +44,12 @@ class PredisStorageTest extends TestCase
      * Tests broken server communication.
      *
      * @param callable $method The tested method.
-     * @test
-     * @expectedException bandwidthThrottle\tokenBucket\storage\StorageException
      * @dataProvider provideTestBrokenCommunication
      */
     public function testBrokenCommunication(callable $method)
     {
+        $this->expectException(StorageException::class);
+
         $redis = $this->createMock(Client::class);
         $redis->expects($this->once())->method("__call")
                 ->willThrowException(new ClientException());
@@ -85,12 +85,11 @@ class PredisStorageTest extends TestCase
 
     /**
      * Tests remove() fails.
-     *
-     * @test
-     * @expectedException bandwidthThrottle\tokenBucket\storage\StorageException
      */
     public function testRemoveFails()
     {
+        $this->expectException(StorageException::class);
+
         $this->storage->bootstrap(1);
         $this->storage->remove();
 
@@ -99,12 +98,11 @@ class PredisStorageTest extends TestCase
 
     /**
      * Tests setMicrotime() fails.
-     *
-     * @test
-     * @expectedException bandwidthThrottle\tokenBucket\storage\StorageException
      */
     public function testSetMicrotimeFails()
     {
+        $this->expectException(StorageException::class);
+
         $redis = $this->createMock(Client::class);
         $redis->expects($this->once())->method("__call")
                 ->with("set")
@@ -115,12 +113,11 @@ class PredisStorageTest extends TestCase
 
     /**
      * Tests getMicrotime() fails.
-     *
-     * @test
-     * @expectedException bandwidthThrottle\tokenBucket\storage\StorageException
      */
     public function testGetMicrotimeFails()
     {
+        $this->expectException(StorageException::class);
+
         $this->storage->bootstrap(1);
         $this->storage->remove();
 

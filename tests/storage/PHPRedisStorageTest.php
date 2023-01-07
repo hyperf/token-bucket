@@ -13,7 +13,7 @@ use PHPUnit\Framework\TestCase;
  * @author Markus Malkusch <markus@malkusch.de>
  * @link bitcoin:1335STSwu9hST4vcMRppEPgENMHD2r1REK Donations
  * @license WTFPL
- * @see PHPRedisStorage
+ * @see  PHPRedisStorage
  */
 class PHPRedisStorageTest extends TestCase
 {
@@ -32,7 +32,7 @@ class PHPRedisStorageTest extends TestCase
     {
         parent::setUp();
 
-        if (!getenv("REDIS_URI")) {
+        if (! getenv("REDIS_URI")) {
             $this->markTestSkipped();
         }
         $uri = parse_url(getenv("REDIS_URI"));
@@ -64,32 +64,41 @@ class PHPRedisStorageTest extends TestCase
     public function provideTestBrokenCommunication()
     {
         return [
-            [function (PHPRedisStorage $storage) {
-                $storage->bootstrap(1);
-            }],
-            [function (PHPRedisStorage $storage) {
-                $storage->isBootstrapped();
-            }],
-            [function (PHPRedisStorage $storage) {
-                $storage->remove();
-            }],
-            [function (PHPRedisStorage $storage) {
-                $storage->setMicrotime(1);
-            }],
-            [function (PHPRedisStorage $storage) {
-                $storage->getMicrotime();
-            }],
+            [
+                function (PHPRedisStorage $storage) {
+                    $storage->bootstrap(1);
+                }
+            ],
+            [
+                function (PHPRedisStorage $storage) {
+                    $storage->isBootstrapped();
+                }
+            ],
+            [
+                function (PHPRedisStorage $storage) {
+                    $storage->remove();
+                }
+            ],
+            [
+                function (PHPRedisStorage $storage) {
+                    $storage->setMicrotime(1);
+                }
+            ],
+            [
+                function (PHPRedisStorage $storage) {
+                    $storage->getMicrotime();
+                }
+            ],
         ];
     }
 
     /**
      * Tests remove() fails.
-     *
-     * @test
-     * @expectedException bandwidthThrottle\tokenBucket\storage\StorageException
      */
     public function testRemoveFails()
     {
+        $this->expectException(StorageException::class);
+
         $this->storage->bootstrap(1);
         $this->storage->remove();
 
@@ -98,27 +107,25 @@ class PHPRedisStorageTest extends TestCase
 
     /**
      * Tests setMicrotime() fails.
-     *
-     * @test
-     * @expectedException bandwidthThrottle\tokenBucket\storage\StorageException
      */
     public function testSetMicrotimeFails()
     {
+        $this->expectException(StorageException::class);
+
         $redis = $this->createMock(Redis::class);
         $redis->expects($this->once())->method("set")
-                ->willReturn(false);
+            ->willReturn(false);
         $storage = new PHPRedisStorage("test", $redis);
         $storage->setMicrotime(1);
     }
 
     /**
      * Tests getMicrotime() fails.
-     *
-     * @test
-     * @expectedException bandwidthThrottle\tokenBucket\storage\StorageException
      */
     public function testGetMicrotimeFails()
     {
+        $this->expectException(StorageException::class);
+
         $this->storage->bootstrap(1);
         $this->storage->remove();
 
