@@ -49,7 +49,7 @@ class PDOStorageTest extends TestCase
             $cases[] = [$pdo];
         }
         if (getenv("PGSQL_DSN")) {
-            $pdo = new \PDO(getenv("PGSQL_DSN"), getenv("PGSQL_USER"));
+            $pdo = new \PDO(getenv("PGSQL_DSN"), getenv("PGSQL_USER"), 'postgre');
             $cases[] = [$pdo];
         }
         foreach ($cases as $case) {
