@@ -17,17 +17,16 @@ use bandwidthThrottle\tokenBucket\storage\scope\RequestScope;
  */
 final class SingleProcessStorage implements Storage, RequestScope
 {
- 
     /**
-     * @var Mutex The mutex.
+     * The mutex.
      */
-    private $mutex;
-    
+    private NoMutex $mutex;
+
     /**
      * @var double The microtime.
      */
     private $microtime;
-    
+
     /**
      * Initialization.
      */
@@ -35,17 +34,17 @@ final class SingleProcessStorage implements Storage, RequestScope
     {
         $this->mutex = new NoMutex();
     }
-    
+
     public function isBootstrapped()
     {
         return ! is_null($this->microtime);
     }
-    
+
     public function bootstrap($microtime)
     {
         $this->setMicrotime($microtime);
     }
-    
+
     public function remove()
     {
         $this->microtime = null;
@@ -55,7 +54,7 @@ final class SingleProcessStorage implements Storage, RequestScope
     {
         $this->microtime = $microtime;
     }
-    
+
     public function getMicrotime()
     {
         return $this->microtime;

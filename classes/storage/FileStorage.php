@@ -18,22 +18,17 @@ use bandwidthThrottle\tokenBucket\util\DoublePacker;
  */
 final class FileStorage implements Storage, GlobalScope
 {
- 
+
     /**
-     * @var Mutex The mutex.
+     * The mutex.
      */
-    private $mutex;
-    
+    private ?Mutex $mutex = null;
+
     /**
      * @var resource The file handle.
      */
     private $fileHandle;
-    
-    /**
-     * @var string The file path.
-     */
-    private $path;
-    
+
     /**
      * Sets the file path and opens it.
      *
@@ -43,12 +38,11 @@ final class FileStorage implements Storage, GlobalScope
      * @param string $path The file path.
      * @throws StorageException Failed to open the file.
      */
-    public function __construct($path)
+    public function __construct(private string $path)
     {
-        $this->path = $path;
         $this->open();
     }
-    
+
     /**
      * Opens the file and initializes the mutex.
      *
@@ -62,7 +56,7 @@ final class FileStorage implements Storage, GlobalScope
         }
         $this->mutex = new FlockMutex($this->fileHandle);
     }
-    
+
     /**
      * Closes the file handle.
      *
@@ -72,19 +66,19 @@ final class FileStorage implements Storage, GlobalScope
     {
         fclose($this->fileHandle);
     }
-    
+
     public function isBootstrapped()
     {
         $stats = fstat($this->fileHandle);
         return $stats["size"] > 0;
     }
-    
+
     public function bootstrap($microtime)
     {
         $this->open(); // remove() could have deleted the file.
         $this->setMicrotime($microtime);
     }
-    
+
     public function remove()
     {
         // Truncate to notify isBootstrapped() about the new state.
@@ -104,14 +98,14 @@ final class FileStorage implements Storage, GlobalScope
         if (fseek($this->fileHandle, 0) !== 0) {
             throw new StorageException("Could not move to beginning of the file.");
         }
-        
+
         $data = DoublePacker::pack($microtime);
         $result = fwrite($this->fileHandle, $data, strlen($data));
         if ($result !== strlen($data)) {
             throw new StorageException("Could not write to storage.");
         }
     }
-    
+
     /**
      * @SuppressWarnings(PHPMD)
      */
@@ -124,10 +118,10 @@ final class FileStorage implements Storage, GlobalScope
         if ($data === false) {
             throw new StorageException("Could not read from storage.");
         }
-        
+
         return DoublePacker::unpack($data);
     }
-    
+
     public function getMutex()
     {
         return $this->mutex;

@@ -22,21 +22,10 @@ use malkusch\lock\mutex\Mutex;
  */
 final class PHPRedisStorage implements Storage, GlobalScope
 {
-
     /**
-     * @var Mutex The mutex.
+     * The mutex.
      */
-    private $mutex;
-
-    /**
-     * @var Redis The redis API.
-     */
-    private $redis;
-
-    /**
-     * @var string The key.
-     */
-    private $key;
+    private PHPRedisMutex $mutex;
 
     /**
      * Sets the connected Redis API.
@@ -44,14 +33,12 @@ final class PHPRedisStorage implements Storage, GlobalScope
      * The Redis API needs to be connected yet. I.e. Redis::connect() was
      * called already.
      *
-     * @param string $name  The resource name.
-     * @param Redis  $redis The Redis API.
+     * @param string $name The resource name.
+     * @param Redis $redis The Redis API.
      */
-    public function __construct($name, Redis $redis)
+    public function __construct(private string $key, private Redis $redis)
     {
-        $this->key   = $name;
-        $this->redis = $redis;
-        $this->mutex = new PHPRedisMutex([$redis], $name);
+        $this->mutex = new PHPRedisMutex([$redis], $this->key);
     }
 
     public function bootstrap($microtime)
@@ -71,7 +58,7 @@ final class PHPRedisStorage implements Storage, GlobalScope
     public function remove()
     {
         try {
-            if (!$this->redis->del($this->key)) {
+            if (! $this->redis->del($this->key)) {
                 throw new StorageException("Failed to delete key");
             }
         } catch (RedisException $e) {
@@ -87,7 +74,7 @@ final class PHPRedisStorage implements Storage, GlobalScope
         try {
             $data = DoublePacker::pack($microtime);
 
-            if (!$this->redis->set($this->key, $data)) {
+            if (! $this->redis->set($this->key, $data)) {
                 throw new StorageException("Failed to store microtime");
             }
         } catch (RedisException $e) {

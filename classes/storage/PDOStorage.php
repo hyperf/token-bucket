@@ -5,6 +5,7 @@ namespace bandwidthThrottle\tokenBucket\storage;
 use bandwidthThrottle\tokenBucket\storage\Storage;
 use malkusch\lock\mutex\TransactionalMutex;
 use bandwidthThrottle\tokenBucket\storage\scope\GlobalScope;
+use PDO;
 
 /**
  * PDO based storage which can be shared over a common DBS.
@@ -17,22 +18,11 @@ use bandwidthThrottle\tokenBucket\storage\scope\GlobalScope;
  */
 final class PDOStorage implements Storage, GlobalScope
 {
+    /**
+     * The mutex.
+     */
+    private TransactionalMutex $mutex;
 
-    /**
-     * @var PDO The pdo.
-     */
-    private $pdo;
-    
-    /**
-     * @var string The shared name of the token bucket.
-     */
-    private $name;
-    
-    /**
-     * @var TransactionalMutex The mutex.
-     */
-    private $mutex;
-    
     /**
      * Sets the PDO and the bucket's name for the shared storage.
      *
@@ -43,24 +33,22 @@ final class PDOStorage implements Storage, GlobalScope
      * be at least Repeatable Read.
      *
      * @param string $name The name of the token bucket.
-     * @param PDO    $pdo  The PDO.
+     * @param PDO $pdo The PDO.
      *
      * @throws \LengthException          The id should not be longer than 128 characters.
      * @throws \InvalidArgumentException PDO must be configured to throw exceptions.
      */
-    public function __construct($name, \PDO $pdo)
+    public function __construct(private string $name, private PDO $pdo)
     {
-        if (strlen($name) > 128) {
+        if (strlen($this->name) > 128) {
             throw new \LengthException("The name should not be longer than 128 characters.");
         }
         if ($pdo->getAttribute(\PDO::ATTR_ERRMODE) !== \PDO::ERRMODE_EXCEPTION) {
             throw new \InvalidArgumentException("The pdo must have PDO::ERRMODE_EXCEPTION set.");
         }
-        $this->pdo   = $pdo;
-        $this->name  = $name;
         $this->mutex = new TransactionalMutex($pdo);
     }
-    
+
     public function bootstrap($microtime)
     {
         try {
@@ -92,7 +80,7 @@ final class PDOStorage implements Storage, GlobalScope
             throw new StorageException("Failed to bootstrap storage '$this->name'", 0, $e);
         }
     }
-    
+
     public function isBootstrapped()
     {
         try {
@@ -136,7 +124,7 @@ final class PDOStorage implements Storage, GlobalScope
             throw new StorageException("Failed to write to storage '$this->name'.", 0, $e);
         }
     }
-    
+
     public function getMicrotime()
     {
         $forUpdate = $this->forVendor(["sqlite" => ""], "FOR UPDATE");
@@ -149,8 +137,8 @@ final class PDOStorage implements Storage, GlobalScope
     /**
      * Returns a vendor specific dialect value.
      *
-     * @param string[] $map     The vendor dialect map.
-     * @param string   $default The default value, which is empty per default.
+     * @param string[] $map The vendor dialect map.
+     * @param string $default The default value, which is empty per default.
      *
      * @return string The vendor specific value.
      */
@@ -159,12 +147,12 @@ final class PDOStorage implements Storage, GlobalScope
         $vendor = $this->pdo->getAttribute(\PDO::ATTR_DRIVER_NAME);
         return isset($map[$vendor]) ? $map[$vendor] : $default;
     }
-    
+
     /**
      * Returns one value from a query.
      *
-     * @param string $sql        The SQL query.
-     * @param array  $parameters The optional query parameters.
+     * @param string $sql The SQL query.
+     * @param array $parameters The optional query parameters.
      *
      * @return string The value.
      * @throws StorageException The query failed.
@@ -194,10 +182,10 @@ final class PDOStorage implements Storage, GlobalScope
      */
     private function onErrorRollback(callable $code)
     {
-        if (!$this->pdo->inTransaction()) {
+        if (! $this->pdo->inTransaction()) {
             return call_user_func($code);
         }
-        
+
         $this->pdo->exec("SAVEPOINT onErrorRollback");
         try {
             $result = call_user_func($code);

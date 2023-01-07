@@ -13,12 +13,12 @@ use bandwidthThrottle\tokenBucket\storage\StorageException;
  */
 final class BlockingConsumer
 {
-    
+
     /**
      * @var TokenBucket The token bucket.
      */
     private $bucket;
-    
+
     /**
      * @var int|null optional timeout in seconds.
      */
@@ -39,7 +39,7 @@ final class BlockingConsumer
         }
         $this->timeout = $timeout;
     }
-    
+
     /**
      * Consumes tokens.
      *
@@ -58,7 +58,7 @@ final class BlockingConsumer
         while (!$this->bucket->consume($tokens, $seconds)) {
             self::throwTimeoutIfExceeded($timedOut);
             $seconds = self::keepSecondsWithinTimeout($seconds, $timedOut);
-            
+
             // avoid an overflow before converting $seconds into microseconds.
             if ($seconds > 1) {
                 // leave more than one second to avoid sleeping the minimum of one millisecond.
@@ -69,10 +69,10 @@ final class BlockingConsumer
             }
 
             // sleep at least 1 millisecond.
-            usleep(max(1000, $seconds * 1000000));
+            usleep(max(1000, (int) ($seconds * 1000000)));
         }
     }
-    
+
     /**
      * Checks if the timeout was exceeded.
      *
@@ -88,7 +88,7 @@ final class BlockingConsumer
             throw new TimeoutException("Timed out");
         }
     }
-    
+
     /**
      * Adjusts the wait seconds to be within the timeout.
      *
