@@ -5,6 +5,8 @@ namespace bandwidthThrottle\tokenBucket\storage;
 use malkusch\lock\mutex\SemaphoreMutex;
 use bandwidthThrottle\tokenBucket\storage\scope\GlobalScope;
 use bandwidthThrottle\tokenBucket\util\DoublePacker;
+use SysvSharedMemory;
+use SysvSemaphore;
 
 /**
  * Shared memory based storage which can be shared among processes of a single host.
@@ -30,14 +32,14 @@ final class IPCStorage implements Storage, GlobalScope
     private int $key;
 
     /**
-     * @var resource The shared memory.
+     * The shared memory.
      */
-    private $memory;
+    private ?SysvSharedMemory $memory = null;
 
     /**
-     * @var resource The semaphore id.
+     * The semaphore id.
      */
-    private $semaphore;
+    private ?SysvSemaphore $semaphore = null;
 
     /**
      * Sets the System V IPC key for the shared memory and its semaphore.
@@ -63,15 +65,12 @@ final class IPCStorage implements Storage, GlobalScope
     {
         try {
             $this->semaphore = sem_get($this->key);
-            $this->mutex     = new SemaphoreMutex($this->semaphore);
+            $this->mutex = new SemaphoreMutex($this->semaphore);
         } catch (\InvalidArgumentException $e) {
             throw new StorageException("Could not get semaphore id.", 0, $e);
         }
 
         $this->memory = shm_attach($this->key, 128);
-        if (!is_resource($this->memory)) {
-            throw new StorageException("Failed to attach to shared memory.");
-        }
     }
 
     public function bootstrap($microtime)
@@ -84,17 +83,17 @@ final class IPCStorage implements Storage, GlobalScope
 
     public function isBootstrapped()
     {
-        return !is_null($this->memory) && shm_has_var($this->memory, 0);
+        return ! is_null($this->memory) && shm_has_var($this->memory, 0);
     }
 
     public function remove()
     {
-        if (!shm_remove($this->memory)) {
+        if (! shm_remove($this->memory)) {
             throw new StorageException("Could not release shared memory.");
         }
         $this->memory = null;
 
-        if (!sem_remove($this->semaphore)) {
+        if (! sem_remove($this->semaphore)) {
             throw new StorageException("Could not remove semaphore.");
         }
         $this->semaphore = null;
@@ -106,7 +105,7 @@ final class IPCStorage implements Storage, GlobalScope
     public function setMicrotime($microtime)
     {
         $data = DoublePacker::pack($microtime);
-        if (!shm_put_var($this->memory, 0, $data)) {
+        if (! shm_put_var($this->memory, 0, $data)) {
             throw new StorageException("Could not store in shared memory.");
         }
     }
