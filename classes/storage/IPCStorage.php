@@ -89,12 +89,12 @@ final class IPCStorage implements Storage, GlobalScope
 
     public function remove()
     {
-        if (! shm_remove($this->memory)) {
+        if ($this->memory && ! shm_remove($this->memory)) {
             throw new StorageException("Could not release shared memory.");
         }
         $this->memory = null;
 
-        if (! sem_remove($this->semaphore)) {
+        if ($this->semaphore && ! sem_remove($this->semaphore)) {
             throw new StorageException("Could not remove semaphore.");
         }
         $this->semaphore = null;
