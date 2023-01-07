@@ -16,7 +16,7 @@ jobs:
       PHP_VERSION: ${{ matrix.php-version }}
       MYSQL_DSN: "mysql:host=127.0.0.1;dbname=test"
       MYSQL_USER: "root"
-      PGSQL_DSN: "pgsql:host=127.0.0.1;dbname=test;"
+      PGSQL_DSN: "pgsql:host=127.0.0.1;dbname=postgres;"
       PGSQL_USER: "postgres"
       MEMCACHE_HOST: "127.0.0.1"
       REDIS_URI: "redis://localhost"
