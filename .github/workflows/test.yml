@@ -14,6 +14,12 @@ jobs:
     env:
       SW_VERSION: ${{ matrix.swoole-version }}
       PHP_VERSION: ${{ matrix.php-version }}
+      MYSQL_DSN: "mysql:host=localhost;dbname=test"
+      MYSQL_USER: "root"
+      PGSQL_DSN: "pgsql:host=localhost;dbname=test;"
+      PGSQL_USER: "postgres"
+      MEMCACHE_HOST: "localhost"
+      REDIS_URI: "redis://localhost"
     steps:
       - name: Checkout
         uses: actions/checkout@v2

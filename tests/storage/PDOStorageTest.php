@@ -16,7 +16,7 @@ use PHPUnit\Framework\TestCase;
  * @author Markus Malkusch <markus@malkusch.de>
  * @link bitcoin:1335STSwu9hST4vcMRppEPgENMHD2r1REK Donations
  * @license WTFPL
- * @see PDOStorage
+ * @see  PDOStorage
  */
 class PDOStorageTest extends TestCase
 {
@@ -60,12 +60,11 @@ class PDOStorageTest extends TestCase
 
     /**
      * Tests instantiation with a too long name should fail.
-     *
-     * @test
-     * @expectedException \LengthException
      */
     public function testTooLongNameFails()
     {
+        $this->expectException(\LengthException::class);
+
         $pdo = new \PDO("sqlite::memory:");
         $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
         new PDOStorage(str_repeat(" ", 129), $pdo);
@@ -73,26 +72,26 @@ class PDOStorageTest extends TestCase
 
     /**
      * Tests instantiation with a long name should not fail.
-     *
-     * @test
      */
     public function testLongName()
     {
         $pdo = new \PDO("sqlite::memory:");
         $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
         new PDOStorage(str_repeat(" ", 128), $pdo);
+
+        $this->assertTrue(true);
     }
 
     /**
      * Tests instantiation with PDO in wrong error mode should fail.
      *
      * @param int $errorMode The invalid error mode.
-     * @test
-     * @expectedException \InvalidArgumentException
      * @dataProvider provideTestInvalidErrorMode
      */
     public function testInvalidErrorMode($errorMode)
     {
+        $this->expectException(\InvalidArgumentException::class);
+
         $pdo = new \PDO("sqlite::memory:");
         $pdo->setAttribute(\PDO::ATTR_ERRMODE, $errorMode);
         new PDOStorage("test", $pdo);
@@ -113,14 +112,14 @@ class PDOStorageTest extends TestCase
 
     /**
      * Tests instantiation with PDO in valid error mode.
-     *
-     * @test
      */
     public function testValidErrorMode()
     {
         $pdo = new \PDO("sqlite::memory:");
         $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
         new PDOStorage("test", $pdo);
+
+        $this->assertTrue(true);
     }
 
     /**
@@ -149,11 +148,11 @@ class PDOStorageTest extends TestCase
      *
      * @param \PDO $pdo The PDO.
      * @dataProvider providePDO
-     * @test
-     * @expectedException bandwidthThrottle\tokenBucket\storage\StorageException
      */
     public function testBootstrapFailsForExistingRow(\PDO $pdo)
     {
+        $this->expectException(StorageException::class);
+
         $storageA = new PDOStorage("A", $pdo);
         $storageA->bootstrap(0);
         $this->storages[] = $storageA;
